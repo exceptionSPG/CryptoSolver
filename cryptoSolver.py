@@ -5,21 +5,20 @@ model = cp_model.CpModel()
 
 base = 10
 #1 means that can't be zero and 0 means that can be 0
+#SEND + MORE = MONEY
 
-c = model.NewIntVar(1,base-1,'C')
-p = model.NewIntVar(0,base-1,'P')
-i = model.NewIntVar(1,base-1,'I')
-s = model.NewIntVar(0,base-1,'S')
-f = model.NewIntVar(1,base-1,'F')
-u = model.NewIntVar(0,base-1,'U')
-n = model.NewIntVar(0,base-1,'N')
-t = model.NewIntVar(1,base-1,'T')
-r = model.NewIntVar(0,base-1,'R')
-u = model.NewIntVar(0,base-1,'U')
+s = model.NewIntVar(1,base-1,'S')
 e = model.NewIntVar(0,base-1,'E')
+n = model.NewIntVar(0,base-1,'N')
+d = model.NewIntVar(0,base-1,'D')
+m = model.NewIntVar(1,base-1,'M')
+o = model.NewIntVar(0,base-1,'O')
+r = model.NewIntVar(0,base-1,'R')
+y = model.NewIntVar(0,base-1,'Y')
+
 
 #We need to group variables in a list to use the constraint AllDifferent
-letters = [c,p,i,s,f,u,n,t,r,e]
+letters = [s,e,n,d,m,o,r,y]
 
 #Verify that we have enough digits
 assert base>=len(letters)
@@ -33,7 +32,8 @@ assert base>=len(letters)
 
 model.AddAllDifferent(letters)
 #CP + IS + FUN = TRUE
-model.Add(c*base+p + i*base+s + f*base*base+u*base+n == t*base*base*base+r*base*base+u*base+e)
+model.Add( s*base*base*base + e*base*base+ n*base + d + m*base*base*base + o*base*base + r*base + e == m*base*base*base*base+o*base*base*base+n*base*base+e*base+y)
+
 
 
 class VarArraySolutionPrinter(cp_model.CpSolverSolutionCallback):
@@ -59,5 +59,12 @@ solution_printer = VarArraySolutionPrinter(letters)
 solver.parameters.enumerate_all_solutions = True
 #Solve
 status = solver.Solve(model, solution_printer)
+
+print('\nStatistics')
+print(f'  status   : {solver.StatusName(status)}')
+print(f'  conflicts: {solver.NumConflicts()}')
+print(f'  branches : {solver.NumBranches()}')
+print(f'  wall time: {solver.WallTime()} s')
+print(f'  sol found: {solution_printer.solution_count()}')
 
 
